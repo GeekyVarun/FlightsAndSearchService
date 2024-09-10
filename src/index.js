@@ -1,21 +1,21 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const { PORT } = require('./config/serverConfig');
-const ApiRoutes = require('./routes/index');
+const express = require('express');
 
-const setupAndStartServer = async () => {
+const { ServerConfig } = require('./config');
+const apiRoutes = require('./routes');
 
-    // create the express object
-    const app = express();
+const app = express();
 
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
-    app.use('/api', ApiRoutes);
-    
-    app.listen(PORT, async () => {
-        console.log(`Server started at ${PORT}`); 
-    });
-}
+app.use('/api', apiRoutes);
+// app.use('/flightsService/api', apiRoutes);
 
-setupAndStartServer();
+app.listen(ServerConfig.PORT, () => {
+    console.log(`Successfully started the server on PORT : ${ServerConfig.PORT}`);
+});
+
+/**
+ * In class task
+ * Setup flights table using sequelize
+ */

@@ -1,64 +1,26 @@
-const { CityRepository } = require('../repository/index');
+const {StatusCodes} = require('http-status-codes');
 
-class CityService {
-    constructor() {
-        this.cityRepository = new CityRepository();
-    }
+const { CityRepository } = require('../repositories');
+const AppError = require('../utils/errors/app-error');
 
-    async createCity(data) {
-        try {
-            const city = await this.cityRepository.createCity(data);
-            return city;
-        } catch (error) {
-            console.log("Something went wrong at service layer");
-            throw {error};
+const cityRepository = new CityRepository();
+
+async function createCity(data) {
+    try {
+        const city = await cityRepository.create(data);
+        return city;
+    } catch(error) {
+        if(error.name == 'SequelizeValidationError' || error.name == 'SequelizeUniqueConstraintError') {
+            let explanation = [];
+            error.errors.forEach((err) => {
+                explanation.push(err.message);
+            });
+            throw new AppError(explanation, StatusCodes.BAD_REQUEST);
         }
-    }
-
-    async deleteCity(cityId) {
-        try {
-            const response = await this.cityRepository.deleteCity(cityId);
-            return response;
-        } catch (error) {
-            console.log("Something went wrong at service layer");
-            throw {error};
-        }
-    }
-
-    async updateCity(cityId, data) {
-        try {
-            const city = await this.cityRepository.updateCity(cityId, data);
-            return city;
-        } catch (error) {
-            console.log("Something went wrong at service layer");
-            throw {error};
-        }
-    }
-
-    async getCity(cityId) {
-        try {
-            const city = await this.cityRepository.getCity(cityId);
-            return city;
-        } catch (error) {
-            console.log("Something went wrong at service layer");
-            throw {error};
-        }
-    }
-
-    async getAllCities(filter) {
-        try {
-            const cities = await this.cityRepository.getAllCities({name: filter.name});
-            // console.log(cities);
-            for(let i=0;i<cities.length;i++){
-                console.log(cities[i].dataValues.MyCityId=cities[i].dataValues.id);
-                delete cities[i].dataValues.id;
-            }
-            return cities;
-        } catch (error) {
-            console.log("Something went wrong at service layer");
-            throw {error};
-        }
+        throw new AppError('Cannot create a new city object', StatusCodes.INTERNAL_SERVER_ERROR);
     }
 }
 
-module.exports = CityService;
+module.exports = {
+    createCity
+}

@@ -1,5 +1,5 @@
 'use strict';
-
+const { Op } = require('sequelize');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -12,35 +12,21 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    await queryInterface.bulkInsert('Airports', [
+    await queryInterface.bulkInsert('Airplanes', [
       {
-        name: 'Kempegowda International Airport',
-        cityId: 8,
+        modelNumber: 'airbus340',
+        capacity: 900,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        name: 'Mysuru Airport',
-        cityId: 8,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        name: 'Mengaluru International Airport',
-        cityId: 8,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        name: 'Indira Gandhi International Airport',
-        cityId: 4,
+        modelNumber: 'boeing777',
+        capacity: 450,
         createdAt: new Date(),
         updatedAt: new Date()
       }
-    ], {});
+    ]);
   },
-
-  
 
   async down (queryInterface, Sequelize) {
     /**
@@ -49,5 +35,13 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
+    await queryInterface.bulkDelete(
+      'Airplanes', 
+      {
+        [Op.or]: [
+          {modelNumber: 'boeing777'}, 
+          {modelNumber: 'airbus340',}
+        ]
+      });
   }
 };
